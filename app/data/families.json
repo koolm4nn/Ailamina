@@ -1,0 +1,26 @@
+[
+    {
+        "id": 0,
+        "title": "African Parrots (Psittacidae)",
+        "common": "African Parrots",
+        "latin": "Psittacidae"
+    },
+    {
+        "id": 1,
+        "title": "Cockatoos (Cacatuidae)",
+        "common": "Cockatoos",
+        "latin": "Cacatuidae"
+    },
+    {
+        "id": 2,
+        "title": "New Zealand Parrots (Strigopidae)",
+        "common": "New Zealand Parrots",
+        "latin": "Strigopidae"
+    },
+    {
+        "id": 3,
+        "title": "Parrot (Psittaculidae)",
+        "common": "Parrot",
+        "latin": "Psittaculidae"
+    }
+]

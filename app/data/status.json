@@ -1,0 +1,42 @@
+[
+    {
+        "id": 0,
+        "title": "Adult"
+    },
+    {
+        "id": 1,
+        "title": "Juvenile"
+    },
+    {
+        "id": 2,
+        "title": "Pet"
+    },
+    {
+        "id": 3,
+        "title": "Nursery"
+    },
+    {
+        "id": 4,
+        "title": "For Sale"
+    },
+    {
+        "id": 5,
+        "title": "Booked"
+    },
+    {
+        "id": 6,
+        "title": "Sold"
+    },
+    {
+        "id": 7,
+        "title": "Dead"
+    },
+    {
+        "id": 8,
+        "title": "Lost"
+    },
+    {
+        "id": 9,
+        "title": "Other"
+    }
+]
