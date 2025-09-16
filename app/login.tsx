@@ -39,17 +39,17 @@ export default function LoginScreen() {
     <>
         <View className='flex-1 items-center justify-center bg-green-50'>
             <View className='w-[80%] items-center pb-20'>
-                <MaterialCommunityIcons name="bird" size={27} color="#fcc800" className='mr-[150px]'/>
-                <Text className='text-neutral-700 p-2 text-3xl'>AILAMINA</Text>
+              <MaterialCommunityIcons name="bird" size={27} color="#fcc800" className='mr-[150px]'/>
+              <Text className='text-neutral-700 p-2 text-3xl'>AILAMINA</Text>
             </View>
 
             <View className='bg-teal-800/70 w-[95%] px-2 items-center rounded-xl'>
-                <Text className='font-bold text-white text-2xl mb-3 mt-5'>
-                  Welcome Back
-                </Text>
-                <Text className='text-white mb-10'>
-                  Login to your account
-                </Text>
+              <Text className='font-bold text-white text-2xl mb-3 mt-5'>
+                Welcome Back.
+              </Text>
+              <Text className='text-white mb-10'>
+                Login to your account
+              </Text>
               <View className='w-[90%] mb-5 '>
                   <TextInput
                       className='text-white text-lg pl-5 mt-none mb-1 border-b border-white w-[100%]'
@@ -87,21 +87,18 @@ export default function LoginScreen() {
                     ( <ActivityIndicator className='text-white'/> ) 
                     : ( <Text className="text-white text-center text-lg">Login</Text> )}
               </Pressable>
-              <Pressable 
-                className='my-2'
-                onPress={() => router.push("/sign-up")}>
-                <Text>PRESS</Text>
-              </Pressable>
-              <View className='w-[60%] flex flex-row justify-between items-center p-1 my-10'>
+              <View className='flex flex-row items-center gap-2 p-1 my-10'>
                 <Text className='text-white'>
-                  Don't have an account?
+                  Don't have an account? 
                 </Text>
-                  <Pressable 
-                    onPress={() => console.log("PRESSED.")}>
-                    <Text className={`${loading? "text-gray-400" : "text-white active:text-accent"} text-center font-bold text-lg`}>
-                      Sign Up
-                    </Text>
-                  </Pressable>
+                <Pressable 
+                  className='my-2'
+                  onPress={() => router.push("/sign-up")}>
+                  {({ pressed }) => (<Text className={`${loading? "text-gray-400" : pressed? "text-accent" : "text-white"} font-bold text-lg`}>
+                    Sign Up
+                  </Text>
+                  )}
+                </Pressable>
               </View>
             </View>
         </View>

@@ -25,7 +25,8 @@ export default function SignUpScreen() {
   const router = useRouter();
 
   async function signUpWithEmail() {
-    setLoading(true)
+    setLoading(true);
+
     const {
       error,
     } = await supabase.auth.signUp({
@@ -85,7 +86,7 @@ export default function SignUpScreen() {
                   <TextInput
                       className='text-white text-lg pl-5 mt-none mb-1 border-b border-white w-[100%]'
                       onChangeText={(text) => setRepeatPassword(text)}
-                      value={password}
+                      value={repeatPassword}
                       secureTextEntry={true}
                       placeholder="Repeat Password"
                       placeholderTextColor="#ffffffab"
@@ -95,27 +96,23 @@ export default function SignUpScreen() {
               <Pressable 
                 disabled={loading || !(password && email)} 
                 className={`${!((password === repeatPassword) && password && email && emailIsValid)? 'bg-gray-100/30 border border-white' : 'bg-accent'} w-[90%] py-3 rounded-full`} 
-                onPress={() => {signUpWithEmail}}>
+                onPress={signUpWithEmail}>
                   {loading? 
                     ( <ActivityIndicator className='text-white'/> ) 
                     : ( <Text className="text-white text-center text-lg">Sign Up</Text> )}
               </Pressable>
-              <Pressable 
-                className='my-2'
-                onPress={() => router.push("/login")}>
-                <Text>PRESS</Text>
-              </Pressable>
-              <View className='w-[60%] flex flex-row justify-between items-center p-1 my-10'>
+              <View className='flex flex-row items-center gap-2 p-1 my-10'>
                 <Text className='text-white'>
-                  Already have an account?
+                  Already have an account? 
                 </Text>
-                  <Pressable 
-                    disabled={loading}
-                    onPress={() => router.push("/login")}>
-                    <Text className="active:text-accent text-white text-center font-bold text-lg">
-                      To Login
-                    </Text>
-                  </Pressable>
+                <Pressable 
+                  className='my-2'
+                  onPress={() => router.push("/login")}>
+                  {({ pressed }) => (<Text className={`${loading? "text-gray-400" : pressed? "text-accent" : "text-white"} font-bold text-lg`}>
+                    Login
+                  </Text>
+                  )}
+                </Pressable>
               </View>
             </View>
         </View>
