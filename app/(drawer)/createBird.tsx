@@ -11,9 +11,12 @@ import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
+// Image uploading
+import { uploadBirdImage } from '@/lib/utils/imageUtils';
+
 // Validation rules
 const validationSchema = yup.object({
-    imageUri: yup.string().nullable().notRequired(),
+    imageBase64: yup.string().nullable().notRequired(),
     commonName: yup.number().nullable().required("Common name is required."),
     status: yup.number().nullable().required("Status is required."),
     sex: yup.string().nullable().required("Sex is required"),
@@ -40,8 +43,10 @@ const validationSchema = yup.object({
     mutations: yup.string().notRequired(),
 })
 
+type FormData = yup.InferType<typeof validationSchema>;
+
 const defaultFormData = {
-    imageUri: "",
+    imageBase64: null as string | null | undefined,
     commonName: null as number | null,
     status: null,
     sex: null,
@@ -66,16 +71,7 @@ const defaultFormData = {
     listPrice: null as number | null,
     soldPrice: null as number | null,
     mutations: ""
-}
-
-
-type FormData = yup.InferType<typeof validationSchema>;
-
-
-type option = {
-    value: string | number,
-    label: string
-}
+};
 
 const statusData = [
     { value: 1, label: "Status 1"},
@@ -138,6 +134,16 @@ const FormTextInput = React.memo(function FormTextInput({ label, value, onChange
 });
 
 export default function CreateBirdScreen(){
+    const [loading, setLoading] = useState(false);
+
+    async function createBird(){
+        // TODO: first create bird
+
+        // TODO: upload image
+        // TODO: store entry in database refering user with uploaded image
+        await uploadBirdImage(formData.imageBase64, "0", "1")
+    }
+
     /**
      * Logic for opening/closing the active/other dropdowns
      * 
@@ -197,7 +203,6 @@ export default function CreateBirdScreen(){
     const setBreedingQualityOpen = makeSetActiveDropdown("breedingQuality");
     const closeOpenDropdowns = () => setActiveDropdown(null);
 
-
     // Form data
     const [formData, setFormData] = useState({...defaultFormData});
 
@@ -214,9 +219,6 @@ export default function CreateBirdScreen(){
         { value: 2, label: "Common 2"},
         { value: 3, label: "Common 3"}
     ]);
-    const [radioValue, setRadioValue] = useState<string | null>(null);
-    const [textValue, setTextValue] = useState("");
-    const [numberValue, setNumberValue] = useState<string>("");
 
 
     return (
@@ -245,7 +247,16 @@ export default function CreateBirdScreen(){
 
             <View className='w-[90%]'>
                 {/* Image Input */}
-                <ImageInput uri={""} onChangeImage={() => {}} />
+                <ImageInput 
+                    uri={undefined}
+                    base64={formData.imageBase64} 
+                    onChangeImage={(base64) => 
+                        setFormData((prev) => ({
+                            ...prev, 
+                            imageBase64: base64
+                        }))
+                    } 
+                />
 
                 {/* Status */}
                 <DropDownPicker
@@ -539,9 +550,11 @@ export default function CreateBirdScreen(){
 
             </View>
             <View className='w-full items-center'>
-                <Pressable className='bg-emerald-600 w-[80%] rounded-2xl'>
+                <Pressable className='bg-emerald-600 w-[80%] rounded-2xl'
+                    onPress={createBird}
+                >
                     <View className='flex flex-row justify-center items-center'>
-                        <AntDesign name="pluscircle" size={24} color="white" />
+                        <AntDesign name="plus-circle" size={24} color="white" />
                         <Text className='text-white p-4 text-center text-xl font-bold'>
                             Create Bird
                         </Text>

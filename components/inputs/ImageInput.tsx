@@ -2,18 +2,22 @@ import { useState } from "react";
 import { View, Pressable, Image, Text } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
 import { Maybe } from "yup";
+import { decode } from "base64-arraybuffer";
 
 /**
  * Simple image selector (gallery or camera). 
  */
 export default function ImageInput({
-    uri, 
+    uri,
+    base64,
     onChangeImage
 } : {
-    uri: string | null | undefined, 
-    onChangeImage: (uri: string | null) => void 
+    uri: string | null | undefined,
+    base64: string | null | undefined,
+    onChangeImage: (base64: string | null | undefined) => void 
 }) {
-    const [imageUri, setImageUri] = useState<string | null>(uri ?? null);
+    const [imageUri, setImageUri] = useState<string | null | undefined>(uri ?? null);
+    const [imageBase64, setImageBase64] = useState<string | null | undefined>(base64 ?? null);
     
     async function pickImage(){
         const { granted } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -25,13 +29,16 @@ export default function ImageInput({
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ["images"],
             allowsEditing: true,
-            quality: 0.7
+            quality: 0.7,
+            base64: true
         });
 
         if(!result.canceled){
             const newUri = result.assets[0].uri;
+            const newBase64 = result.assets[0].base64;
             setImageUri(newUri);
-            onChangeImage(newUri);
+            setImageBase64(newBase64);
+            onChangeImage(newBase64);
         }
     }
 
@@ -44,13 +51,16 @@ export default function ImageInput({
 
         const result = await ImagePicker.launchCameraAsync({
             allowsEditing: true,
-            quality: 0.8
+            quality: 0.8,
+            base64: true
         });
 
         if(!result.canceled) {
             const newUri = result.assets[0].uri;
+            const newBase64 = result.assets[0].base64;
             setImageUri(newUri);
-            onChangeImage(newUri);
+            setImageBase64(newBase64);
+            onChangeImage(newBase64);
         }
     }
 
@@ -61,9 +71,10 @@ export default function ImageInput({
                 className='w-80 h-80 p-2 bg-stone-500 items-center justify-center rounded-md'
             >
                 {imageUri? (
-                        <Image 
-                            source={{ uri: imageUri }}
-                            className='w-full h-full rounded'/>
+                    <Image 
+                        source={{ uri: imageUri }}
+                        className="w-full h-full"
+                    />
                 ) : (
                     <Text className='text-white'>No image selected</Text>
                 )}
