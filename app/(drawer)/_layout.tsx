@@ -57,7 +57,6 @@ function CustomDrawerContent({ navigation }: any) {
         <NavLink navigation={navigation} target='index' title='Dashboard'/>
         <NavLink navigation={navigation} target='two' title='My Birds'/>
         <NavLink navigation={navigation} target='createBird' title='Add Bird'/>
-        <NavLink navigation={navigation} target='createAnimal' title='Scan Bird'/>
         <NavLink navigation={navigation} target='three' title='Common Parents'/>
         <NavLink navigation={navigation} target='three' title='My Pairs'/>
         <NavLink navigation={navigation} target='three' title='Clutches'/>
@@ -92,7 +91,6 @@ export default function DrawerLayout() {
       >
         <Drawer.Screen name="index" options={{ title: 'Dashboard' }} />
         <Drawer.Screen name="createBird" options={{ title: 'Add Bird' }} />
-        <Drawer.Screen name="createAnimal" options={{ title: 'Create Animal' }} />
         <Drawer.Screen name="two" options={{ title: 'Second Page' }} />
         <Drawer.Screen name="three" options={{ title: 'Third Page' }} />
       </Drawer>
