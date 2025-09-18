@@ -3,7 +3,9 @@ import { Drawer } from 'expo-router/drawer';
 import { View, Text, Pressable, Platform, StatusBar } from 'react-native';
 import { MaterialCommunityIcons, SimpleLineIcons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { ActionSheetProvider } from "@expo/react-native-action-sheet";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 type NavLinkProps = {
   navigation: any,
@@ -76,23 +78,31 @@ function CustomDrawerContent({ navigation }: any) {
 
 export default function DrawerLayout() {
   return (
-      <Drawer
-        drawerContent={(props) => <CustomDrawerContent {...props} />}
-        screenOptions={{
-          headerShown: true,
-          headerTintColor: 'white',
-          headerStyle:{
-            backgroundColor: '#30533dff',
-          },
-          headerTitleStyle: { 
-            fontWeight: 'bold',
-          color: '#ffffffff' },
-        }}
-      >
-        <Drawer.Screen name="index" options={{ title: 'Dashboard' }} />
-        <Drawer.Screen name="createBird" options={{ title: 'Add Bird' }} />
-        <Drawer.Screen name="two" options={{ title: 'Second Page' }} />
-        <Drawer.Screen name="three" options={{ title: 'Third Page' }} />
-      </Drawer>
+    <>
+      <SafeAreaProvider>
+        <GestureHandlerRootView style={{ flex: 1, }}>
+          <ActionSheetProvider>
+            <Drawer
+              drawerContent={(props) => <CustomDrawerContent {...props} />}
+              screenOptions={{
+                headerShown: true,
+                headerTintColor: 'white',
+                headerStyle:{
+                  backgroundColor: '#30533dff',
+                },
+                headerTitleStyle: { 
+                  fontWeight: 'bold',
+                color: '#ffffffff' },
+              }}
+            >
+              <Drawer.Screen name="index" options={{ title: 'Dashboard' }} />
+              <Drawer.Screen name="createBird" options={{ title: 'Add Bird' }} />
+              <Drawer.Screen name="two" options={{ title: 'Second Page' }} />
+              <Drawer.Screen name="three" options={{ title: 'Third Page' }} />
+            </Drawer>
+          </ActionSheetProvider>
+        </GestureHandlerRootView>
+      </SafeAreaProvider>
+    </>
   );
 }
