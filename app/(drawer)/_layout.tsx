@@ -81,7 +81,6 @@ export default function DrawerLayout() {
     <>
       <SafeAreaProvider>
         <GestureHandlerRootView style={{ flex: 1, }}>
-          <ActionSheetProvider>
             <Drawer
               drawerContent={(props) => <CustomDrawerContent {...props} />}
               screenOptions={{
@@ -100,7 +99,6 @@ export default function DrawerLayout() {
               <Drawer.Screen name="two" options={{ title: 'Second Page' }} />
               <Drawer.Screen name="three" options={{ title: 'Third Page' }} />
             </Drawer>
-          </ActionSheetProvider>
         </GestureHandlerRootView>
       </SafeAreaProvider>
     </>
