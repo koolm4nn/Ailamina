@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { View, ScrollView, Text, TextInput, Pressable, Alert, Image, Button, Platform, Dimensions, Modal, FlatList } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker'; // searchable dropdown
 //import CurrencyInput from 'react-native-currency-input';
@@ -22,8 +22,11 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 // Validation rules
 const validationSchema = yup.object({
     imageBase64: yup.string().nullable().notRequired(),
-    order: yup.number().nullable().required("Order is required")
+    hatchDate: yup.string().nullable().required("Hatch Date is required."),
+    order: yup.number().nullable().required("Order is required."),
+    id: yup.string().nullable().required("Id is required.")
 })
+
 /*const validationSchema = yup.object({
     imageBase64: yup.string().nullable().notRequired(),
     commonName: yup.number().nullable().required("Common name is required."),
@@ -55,11 +58,15 @@ const validationSchema = yup.object({
 //type FormData = yup.InferType<typeof validationSchema>;
 type FormData = {
     imageBase64: string | null,
-    order: number | null
+    hatchDate: string | null,
+    order: number | null,
+    id: string | null
 }
 const defaultFormData: FormData = {
     imageBase64: null,
-    order: null
+    hatchDate: null,
+    order: null,
+    id: null
 }
 
 /*const defaultFormData = {
@@ -89,6 +96,52 @@ const defaultFormData: FormData = {
     soldPrice: null as number | null,
     mutations: ""
 };*/
+
+interface FormModalProps {
+    name: string,
+    control: any,
+    title: string,
+    items: { label:string, value: any }[],
+    showSearch?: boolean,
+    placeholder?: string
+}
+
+function FormModalComponent({ name, control, title, items, showSearch = true, placeholder = "None selected"}: FormModalProps){
+    const [modalVisible, setModalVisible] = useState(false);
+    return (
+        <Controller 
+                control={control}
+                name={name}
+                render={({ field, fieldState }) => (
+                    <>
+                        <ModalComponent 
+                            items={items} 
+                            onChange={field.onChange} 
+                            visible={modalVisible} 
+                            onClose={() => { setModalVisible(false)}} 
+                            showSearch={showSearch}
+                            selectedValue={field.value} // Controlled from react-hook-form
+                            title={title}
+                            error={!!fieldState.error}
+                        />
+                        <View className='flex flex-row justify-between items-center bg-gray-200 px-5 py-2'>
+                            <Text>{title}</Text>
+                            <Pressable 
+                                onPress={() => setModalVisible(true)}
+                                className={`${!field.value? "bg-yellow-100" : "bg-green-100"} px-6 py-3 border w-2/4 items-center`}
+                            >
+                                <Text>{items.find((item) => item.value === field.value)?.label ?? "Select"}</Text>
+                            </Pressable>
+                        </View>
+                        {fieldState.error && (
+                            <Text className="text-red-500">{fieldState.error.message}</Text>
+                        )}
+                    </>
+                )}
+            />
+    )
+}
+
 
 interface ModalProps {
     title: string
@@ -144,6 +197,7 @@ function ModalComponent(props: ModalProps){
                     <ScrollView
                         className='max-h-3/4'
                     >
+                        {filteredItems.length === 0 && <View><Text>No entry found.</Text></View>}
                         {filteredItems.map((item) => (
                             <View 
                                 key={item.value}
@@ -158,7 +212,7 @@ function ModalComponent(props: ModalProps){
                                 >
                                     {({ pressed }) => (
                                         <Text
-                                            className={`mb-0.5 px-3 py-3 rounded-sm ${props.selectedValue === item.value? 
+                                            className={`mb-0.5 px-5 py-5 rounded-sm ${props.selectedValue === item.value? 
                                             "bg-yellow-200" : pressed? 
                                             "bg-blue-200" :
                                             "bg-gray-200"}`}    
@@ -182,6 +236,41 @@ function ModalComponent(props: ModalProps){
         </Modal>
     )
 }
+
+
+interface FormTextProps {
+    name: string,
+    control: any,
+    title: string,
+    placeholder?: string
+}
+
+function FormTextInputBase({ name, control, title, placeholder="Type here.."}: FormTextProps){
+    return (
+        <Controller 
+            control={control}
+            name={name}
+            render={({field: { value, onChange, onBlur }, fieldState}) => (
+                <View className='bg-gray-200 px-5 py-2 mb-5'>
+                    <Text>{title}</Text>
+                    <TextInput 
+                        value={value}
+                        onChangeText={onChange}
+                        onBlur={onBlur}
+                        placeholder={placeholder}
+                        placeholderTextColor='gray'
+                        numberOfLines={1}
+                        className='border rounded'
+                    />
+                    {fieldState.error && (<Text className='text-red-600'>{fieldState.error.message}</Text>)}
+                </View>
+            )}
+        />
+    )
+}
+
+// Memo-ize to prevent re-rendering of input siblings
+const FormTextInputComponent = memo(FormTextInputBase);
 
 export default function CreateBirdScreen(){
     // Use Actionsheets
@@ -212,24 +301,24 @@ export default function CreateBirdScreen(){
         const cancelButtonIndex = 2;
 
         showActionSheetWithOptions({
-        options,
-        cancelButtonIndex,
-        destructiveButtonIndex
+            options,
+            cancelButtonIndex,
+            destructiveButtonIndex
         }, (selectedIndex) => {
-        switch (selectedIndex) {
-            case 1:
-            console.log("Save");
-            // Save
-            break;
+            switch (selectedIndex) {
+                case 1:
+                console.log("Save");
+                // Save
+                break;
 
-            case destructiveButtonIndex:
-            console.log("Delete");
-            // Delete
-            break;
+                case destructiveButtonIndex:
+                console.log("Delete");
+                // Delete
+                break;
 
-            case cancelButtonIndex:
-            console.log("Cancel");
-            // Canceled
+                case cancelButtonIndex:
+                console.log("Cancel");
+                // Canceled
         }});
     }
 
@@ -241,46 +330,34 @@ export default function CreateBirdScreen(){
                 </Pressable>
             </View>
 
-            {/* ORDER */}
-            <Controller 
+            {/* IMAGE */}
+            <Controller
                 control={control}
-                name='order'
-                render={({ field, fieldState }) => (
-                    <>
-                        <ModalComponent 
-                            items={orderData} 
-                            onChange={field.onChange} 
-                            visible={orderModalVisible} 
-                            onClose={() => { setOrderModalVisible(false)}} 
-                            showSearch={true}
-                            selectedValue={field.value} // Controlled from react-hook-form
-                            title='Select Order'
-                            error={!!fieldState.error}
-                        />
-                        <View className='flex flex-row justify-between items-center bg-gray-200 px-5 py-2'>
-                            <View>
-                                <Pressable 
-                                    onPress={() => setOrderModalVisible(!orderModalVisible)}
-                                    className='px-6 py-3 border'
-                                >
-                                    <Text>Select Order</Text>
-                                </Pressable>
-                            </View>
-                            {field.value && <View>
-                                <Text>
-                                    {`Selected: ${orderData.find((item) => item.value === field.value)?.label} (${field.value})`}
-                                </Text>
-                            </View>}
-                            {!field.value && <View>
-                                <Text className='italic'>None selected</Text>    
-                            </View>}
-                            {fieldState.error && (
-                                <Text className="text-red-500">{fieldState.error.message}</Text>
-                            )}
-                        </View>
-                    </>
+                name='imageBase64'
+                render={ ({field, fieldState}) => (
+                    <ImageInput uri={null} base64={null} onChangeImage={field.onChange} />
                 )}
             />
+
+            {/* HATCH DATE */}
+            <Controller 
+                control={control}
+                name='hatchDate'
+                render={ ({ field, fieldState}) => (
+                    <FormDatePicker value={new Date()} onChange={field.onChange}/>
+                )}
+            />
+
+            {/* ID */}
+            <FormTextInputComponent name='id' control={control} title='ID'  />
+            
+
+            
+            
+            {/* ORDER */}
+            <FormModalComponent name='order' control={control} title='Select Order' items={orderData} />
+
+            {/* Submit */}
             <View className='items-center p-2'>
                 <Pressable
                     onPress={handleSubmit(submit)}
@@ -289,7 +366,7 @@ export default function CreateBirdScreen(){
                     <Text className='text-xl text-gray-100'>Submit</Text>
                 </Pressable>
             </View>
-            <View className='items-center p-2 mb-40'>
+            <View className='items-center p-2'>
                 <Pressable
                     onPress={() => reset()}
                     className='px-7 py-3 rounded-lg bg-sky-400'
@@ -297,6 +374,9 @@ export default function CreateBirdScreen(){
                     <Text className='text-xl text-gray-100 '>Reset</Text>
                 </Pressable>
             </View>
+            <View className='mb-20'></View>
+            <View className='mb-20'></View>
+            <Text>a</Text>
         </>
     )
 }
