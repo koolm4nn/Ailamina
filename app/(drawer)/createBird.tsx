@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { View, ScrollView, Text, TextInput, Pressable, Alert, Image, Button, Platform, Dimensions, Modal, FlatList } from 'react-native';
+import { View, ScrollView, Text, TextInput, Pressable, Alert, Image, Button, Platform, Dimensions, Modal, FlatList, KeyboardAvoidingView } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker'; // searchable dropdown
 //import CurrencyInput from 'react-native-currency-input';
 import CurrencyField from "@/components/inputs/CurrencyInput"
@@ -323,60 +323,70 @@ export default function CreateBirdScreen(){
     }
 
     return (
-        <>
-            <View>
-                <Pressable onPress={onPressCommonName}>
-                    <Text>Show Common Names</Text>
-                </Pressable>
-            </View>
+        <KeyboardAvoidingView
+            style={{ flex: 1}}  
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+            <ScrollView
+                contentContainerStyle={{ padding: 16 }}
+                keyboardShouldPersistTaps="handled"
+            >
+                <>
+                    <View>
+                        <Pressable onPress={onPressCommonName}>
+                            <Text>Show Common Names</Text>
+                        </Pressable>
+                    </View>
 
-            {/* IMAGE */}
-            <Controller
-                control={control}
-                name='imageBase64'
-                render={ ({field, fieldState}) => (
-                    <ImageInput uri={null} base64={null} onChangeImage={field.onChange} />
-                )}
-            />
+                    {/* IMAGE */}
+                    <Controller
+                        control={control}
+                        name='imageBase64'
+                        render={ ({field, fieldState}) => (
+                            <ImageInput uri={null} base64={null} onChangeImage={field.onChange} />
+                        )}
+                    />
 
-            {/* HATCH DATE */}
-            <Controller 
-                control={control}
-                name='hatchDate'
-                render={ ({ field, fieldState}) => (
-                    <FormDatePicker value={new Date()} onChange={field.onChange}/>
-                )}
-            />
+                    {/* HATCH DATE */}
+                    <Controller 
+                        control={control}
+                        name='hatchDate'
+                        render={ ({ field, fieldState}) => (
+                            <FormDatePicker value={new Date()} onChange={field.onChange}/>
+                        )}
+                    />
 
-            {/* ID */}
-            <FormTextInputComponent name='id' control={control} title='ID'  />
-            
+                    {/* ID */}
+                    <FormTextInputComponent 
+                    name='id' control={control} title='ID'  />
+                    
 
-            
-            
-            {/* ORDER */}
-            <FormModalComponent name='order' control={control} title='Select Order' items={orderData} />
+                    
+                    
+                    {/* ORDER */}
+                    <FormModalComponent name='order' control={control} title='Select Order' items={orderData} />
 
-            {/* Submit */}
-            <View className='items-center p-2'>
-                <Pressable
-                    onPress={handleSubmit(submit)}
-                    className='px-7 py-3 rounded-lg bg-sky-400'
-                >
-                    <Text className='text-xl text-gray-100'>Submit</Text>
-                </Pressable>
-            </View>
-            <View className='items-center p-2'>
-                <Pressable
-                    onPress={() => reset()}
-                    className='px-7 py-3 rounded-lg bg-sky-400'
-                >
-                    <Text className='text-xl text-gray-100 '>Reset</Text>
-                </Pressable>
-            </View>
-            <View className='mb-20'></View>
-            <View className='mb-20'></View>
-            <Text>a</Text>
-        </>
+                    {/* Submit */}
+                    <View className='items-center p-2'>
+                        <Pressable
+                            onPress={handleSubmit(submit)}
+                            className='px-7 py-3 rounded-lg bg-sky-400'
+                        >
+                            <Text className='text-xl text-gray-100'>Submit</Text>
+                        </Pressable>
+                    </View>
+                    <View className='items-center p-2'>
+                        <Pressable
+                            onPress={() => reset()}
+                            className='px-7 py-3 rounded-lg bg-sky-400'
+                        >
+                            <Text className='text-xl text-gray-100 '>Reset</Text>
+                        </Pressable>
+                    </View>
+                    <View className='mb-20'></View>
+                    <View className='mb-20'></View>
+                </>
+            </ScrollView>
+        </KeyboardAvoidingView>
     )
 }
