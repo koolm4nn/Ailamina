@@ -24,7 +24,7 @@ export default function FormDatePicker({ value, onChange } : Props) {
   };
 
   return (
-    <View className='flex flex-row items-center justify-start mb-5'>
+    <View className='flex flex-row items-center justify-start my-1'>
         <Pressable
             onPress={() => setShow(true)}
             className='bg-yellow-400 px-10 py-2 rounded mr-5 active:bg-yellow-500'>
@@ -37,6 +37,7 @@ export default function FormDatePicker({ value, onChange } : Props) {
           value={date}
           mode="date"
           display="default" // "default", "spinner", "calendar"
+          maximumDate={new Date(Date.now())}
           onChange={handleChange}
         />
       )}
