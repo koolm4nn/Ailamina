@@ -19,10 +19,10 @@ module.exports = {
         'secondary-dark': '#254e39ff',
         'accent': '#FACC15',
         'accent-dark': '#FACC15',
-        'success': '#FFFFFE',
-        'success-dark': '#254e39ff',
-        'error': '#FFFFFE',
-        'error-dark': '#254e39ff',
+        'success': '#48bb78',
+        'success-dark': '#48bb78',
+        'error': '#f56565',
+        'error-dark': '#f56565',
         'text': '#27272A',
         'text-dark': '#254e39ff'
       }
