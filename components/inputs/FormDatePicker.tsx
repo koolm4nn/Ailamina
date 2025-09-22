@@ -2,16 +2,17 @@ import React, { useState } from "react";
 import { Platform, View, Pressable, Text } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
-type Props = {
+interface FormDatePickerProps {
   value: Date,
   onChange: (date: Date) => void
+  required?: boolean
 }
 
 /**
  * Date picker consisting of a button and a simple text display of the selected date in a vertical row.
  * Opens the native date picker. 
  */
-export default function FormDatePicker({ value, onChange } : Props) {
+export default function FormDatePicker({ value, onChange, required=true } : FormDatePickerProps) {
   const [date, setDate] = useState(value);
   const [show, setShow] = useState(false);
 
@@ -27,10 +28,13 @@ export default function FormDatePicker({ value, onChange } : Props) {
     <View className='flex flex-row items-center justify-start my-1'>
         <Pressable
             onPress={() => setShow(true)}
-            className='bg-yellow-400 px-10 py-2 rounded mr-5 active:bg-yellow-500'>
+            className='bg-accent border px-10 py-2 rounded mr-5 active:bg-yellow-500 flex flex-row'>
             <Text>
                 Pick Hatch Date
             </Text>
+            {required && <Text className="text-red-600">
+              *
+            </Text>}
         </Pressable>
       {show && (
         <DateTimePicker

@@ -70,7 +70,7 @@ export default function ImageInput({
             <View className='flex flex-row justify-center gap-10 py-2 px-10 w-full'>
                 <Pressable
                     onPress={pickImage}
-                    className='active:bg-yellow-600 active:opacity-90 bg-accent px-3 py-2 rounded w-[40%]'
+                    className='border active:opacity-50 bg-accent px-3 py-2 rounded w-[40%]'
                 >
                     <Text
                         className='text-neutral-800 text-center'>
@@ -79,7 +79,7 @@ export default function ImageInput({
                 </Pressable>
                 <Pressable
                     onPress={takeImage}
-                    className='active:bg-yellow-600 active:opacity-90 bg-accent px-3 py-2 rounded w-[40%]'
+                    className='border active:opacity-50 bg-accent px-3 py-2 rounded w-[40%]'
                 >
                     <Text
                         className='text-neutral-800 text-center'>

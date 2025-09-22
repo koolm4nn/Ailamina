@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
-import { View, Text, Pressable, Modal, TextInput, ScrollView } from "react-native";
+import { View, Text, Pressable, Modal, TextInput, ScrollView, Keyboard } from "react-native";
 
 export interface FormModalProps {
     name: string,
@@ -19,7 +19,7 @@ export default function FormModalComponent({ name, control, title, items, showSe
                 
                 control={control}
                 name={name}
-                render={({ field, fieldState }) => (
+                render={({ field, fieldState }) => ( // Controlled from react-hook-form
                     <>
                         <ModalComponent 
                             items={items} 
@@ -27,24 +27,30 @@ export default function FormModalComponent({ name, control, title, items, showSe
                             visible={modalVisible} 
                             onClose={() => { setModalVisible(false)}} 
                             showSearch={showSearch}
-                            selectedValue={field.value} // Controlled from react-hook-form
+                            selectedValue={field.value}
                             title={title}
                             error={!!fieldState.error}
                         />
-                        <View className='flex flex-row justify-between items-center bg-gray-200 px-5 py-2 my-1'>
-                            <View className="flex flex-row">
-                                <Text>{title}</Text>{required && <Text className="font-bold text-red-600">*</Text>}
+                        <View className={`bg-gray-100 px-5 py-2 my-1`}>
+                            <View className={`flex flex-row justify-between items-center`}>
+                                <View className="flex flex-row">
+                                    <Text>{title}</Text>{required && <Text className="font-bold text-red-600">*</Text>}
+                                </View>
+                                <Pressable 
+                                    onPress={() => {
+                                        Keyboard.dismiss() // Close text input or other before entering the modal
+                                        setModalVisible(true)
+                                        }
+                                    }
+                                    className={`${fieldState.error? "bg-red-100" : field.value === null? "bg-accent" : "bg-white"} ${fieldState.error? "border border-error" : field.value === null? "" : "border border-success"} active:opacity-50 rounded px-4 py-2 border w-[60%] items-center`}
+                                >
+                                    <Text>{field.value? items.find((item) => item.value === field.value)?.label : "Select"}</Text>
+                                </Pressable>
                             </View>
-                            <Pressable 
-                                onPress={() => setModalVisible(true)}
-                                className={`${!field.value? "bg-yellow-100" : "bg-green-100"} px-6 py-3 border w-2/4 items-center`}
-                            >
-                                <Text>{items.find((item) => item.value === field.value)?.label ?? "Select"}</Text>
-                            </Pressable>
+                            {fieldState.error && (
+                                <Text className="text-red-500 mt-1">{String(fieldState.error.message)}</Text>
+                            )}
                         </View>
-                        {fieldState.error && (
-                            <Text className="text-red-500">{fieldState.error.message}</Text>
-                        )}
                     </>
                 )}
             />
@@ -89,7 +95,7 @@ function ModalComponent(props: ModalProps){
                     className={`bg-white w-11/12 h-3/4 rounded-lg p-4`}
                     onPress={(e) => e.stopPropagation()}
                 >
-                    <Text className=''> {props.title} </Text>
+                    <Text className=''> {String(props.title)} </Text>
 
                     {/* Currently Selected */}
                     {props.selectedValue && (<Text className='mb-5 italic'>Currently selected: {props.items.find((item) => item.value === props.selectedValue)?.label}</Text>)}
@@ -126,7 +132,7 @@ function ModalComponent(props: ModalProps){
                                             "bg-blue-200" :
                                             "bg-gray-200"}`}    
                                         >
-                                            {`${item.label} (${item.value})`}
+                                            {`${item.label} (${String(item.value)})`}
                                         </Text>
                                     )}
                                 </Pressable>

@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { View, ScrollView, Text, TextInput, Pressable, Alert, Image, Button, Platform, Dimensions, Modal, FlatList, KeyboardAvoidingView } from 'react-native';
+import { View, ScrollView, Text, TextInput, Pressable, Alert, Image, Button, Platform, Dimensions, Modal, FlatList, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker'; // searchable dropdown
 //import CurrencyInput from 'react-native-currency-input';
 import CurrencyField from "@/components/inputs/CurrencyInput"
@@ -24,6 +24,8 @@ import FormModalComponent from '@/components/forms/FormModal';
 const validationSchema = yup.object({
     imageBase64: yup.string().nullable().notRequired(),
     commonName: yup.number().nullable().required("Common Name is required."),
+    status: yup.number().nullable().required("Status is required."),
+    sex: yup.number().nullable().required("Sex is required."),
     hatchDate: yup.number().nullable().required("Hatch Date is required."),
     order: yup.number().nullable().required("Order is required."),
     id: yup.string().nullable().required("Id is required."),
@@ -37,6 +39,13 @@ const validationSchema = yup.object({
     bodyCondition: yup.number().nullable().required("Body Condition is required."),
     featherCondition: yup.number().nullable().required("Feather Condition is required."),
     breedingQuality: yup.number().nullable().required("Breeding Quality is required."),
+    breederInfo: yup.string().nullable().notRequired(),
+    mutations: yup.string().nullable().notRequired(),
+    location: yup.string().nullable().required("Location is required."),
+    cost: yup.number().moreThan(0, "Cost must be greater than 0.00").nullable().required("Costs must be greater than 0.00."),
+    marketValue: yup.number().moreThan(0, "Market Value must be greater than 0.00").nullable().required("Market Value must be greater than 0.00."),
+    listPrice: yup.number().moreThan(0, "List Price must be greater than 0.00").nullable().required("List Price must be greater than 0.00."),
+    soldPrice: yup.number().moreThan(0, "Sold Price must be greater than 0.00").nullable().required("Sold Price must be greater than 0.00.")
 })
 
 /*const validationSchema = yup.object({
@@ -85,7 +94,14 @@ type FormData = {
     subSpecies: number | null,
     bodyCondition: number | null,
     featherCondition: number | null,
-    breedingQuality: number | null
+    breedingQuality: number | null,
+    breederInfo: string | null,
+    mutations: string | null,
+    location: string | null,
+    cost: number | null,
+    marketValue: number | null,
+    listPrice: number | null,
+    soldPrice: number | null,
 }
 const defaultFormData: FormData = {
     imageBase64: null,
@@ -105,6 +121,13 @@ const defaultFormData: FormData = {
     bodyCondition: null,
     featherCondition: null,
     breedingQuality: null,
+    breederInfo: null,
+    mutations: null,
+    location: null,
+    cost: 0,
+    marketValue: 0,
+    listPrice: 0,
+    soldPrice: 0,
 }
 
 /*const defaultFormData = {
@@ -170,7 +193,11 @@ export default function CreateBirdScreen(){
     }
 
     return (
-        <KeyboardAvoidingView
+        <TouchableWithoutFeedback
+            onPress={Keyboard.dismiss}
+            accessible={false}
+        >
+            <KeyboardAvoidingView
             style={{ flex: 1}}  
             behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
@@ -216,38 +243,56 @@ export default function CreateBirdScreen(){
                     />
 
                     {/* ID */}
-                    <FormTextInputComponent name='id' control={control} title='ID'  />
+                    <FormTextInputComponent name='id' control={control} title='Main Identifier (e.g. Band/Ring Number):' required={true}  />
                     {/* ID 2 */}
-                    <FormTextInputComponent name='id2' control={control} title='ID 2'  />
+                    <FormTextInputComponent name='id2' control={control} title='Additional Idenfitier:'  />
                     {/* ID 3 */}
-                    <FormTextInputComponent name='id3' control={control} title='ID 3'  />
+                    <FormTextInputComponent name='id3' control={control} title='Additional Identifier:'  />
 
                     {/* NAME */}
-                    <FormTextInputComponent name='name' control={control} title='Name'  />
+                    <FormTextInputComponent name='name' control={control} title='Name' required={true}/>
                     
                     {/* ORDER */}
-                    <FormModalComponent name='order' control={control} title='Order:' items={orderData} />
+                    <FormModalComponent name='order' control={control} title='Order:' items={orderData} required={true}/>
                     
                     {/* FAMILY */}
-                    <FormModalComponent name='family' control={control} title='Family:' items={familyData} />
+                    <FormModalComponent name='family' control={control} title='Family:' items={familyData} required={true}/>
                     
                     {/* GENUS */}
-                    <FormModalComponent name='genus' control={control} title='Genus:' items={genusData} />
+                    <FormModalComponent name='genus' control={control} title='Genus:' items={genusData} required={true}/>
 
                     {/* SPECIES */}
-                    <FormModalComponent name='species' control={control} title='Species:' items={speciesData} />
+                    <FormModalComponent name='species' control={control} title='Species:' items={speciesData} required={true}/>
                     
                     {/* SUBSPECIES */}
-                    <FormModalComponent name='subSpecies' control={control} title='Sub Species:' items={subspeciesData} />
+                    <FormModalComponent name='subSpecies' control={control} title='Sub Species:' items={subspeciesData} required={true}/>
+
+                    {/* BREEDER INFO */}
+                    <FormTextInputComponent name='breederInfo' control={control} title='Breeder Info:' multiline={true} numberOfLines={4}/>
+
+                    {/* LOCATION */}
+                    <FormTextInputComponent name='location' control={control} title='Location (e.g. cage number):' required={true} />
                     
                     {/* BODY CONDITION */}
-                    <FormModalComponent name='bodyCondition' control={control} title='Body Condition:' items={bodyConditionData} />
+                    <FormModalComponent name='bodyCondition' control={control} title='Body Condition:' items={bodyConditionData} required={true}/>
                     
                     {/* FEATHER CONDITION */}
-                    <FormModalComponent name='featherCondition' control={control} title='Feather Condition:' items={featherConditionData} />
+                    <FormModalComponent name='featherCondition' control={control} title='Feather Condition:' items={featherConditionData} required={true}/>
                     
                     {/* BREEDING QUALITY */}
-                    <FormModalComponent name='breedingQuality' control={control} title='Breeding Quality:' items={breedingQualityData} />
+                    <FormModalComponent name='breedingQuality' control={control} title='Breeding Quality:' items={breedingQualityData} required={true}/>
+
+                    {/* MUTATIONS */}
+                    <FormTextInputComponent name='mutations' control={control} title='Mutations:' multiline={true} numberOfLines={4}/>
+
+                    {/* COST */}
+                    <CurrencyField name='cost' control={control} title='Cost:'/>
+                    {/* MARKET VALUE */}
+                    <CurrencyField name='marketValue' control={control} title='Market Value:'/>
+                    {/* LIST PRICE */}
+                    <CurrencyField name='listPrice' control={control} title='List Price:'/>
+                    {/* SOLD PRICE */}
+                    <CurrencyField name='soldPrice' control={control} title='Sold Price:'/>
 
                     {/* BUTTONS */}
                     <View className='flex flex-row gap-20 justify-center px-15 items-center'>
@@ -270,8 +315,13 @@ export default function CreateBirdScreen(){
                     </View>
                     <View className='mb-20'></View>
                     <View className='mb-20'></View>
+                    <View className='mb-20'></View>
+                    <View className='mb-20'></View>
                 </>
             </ScrollView>
         </KeyboardAvoidingView>
+
+        </TouchableWithoutFeedback>
+        
     )
 }
