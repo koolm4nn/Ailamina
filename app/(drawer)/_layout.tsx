@@ -1,11 +1,11 @@
 import React from 'react';
 import { Drawer } from 'expo-router/drawer';
-import { View, Text, Pressable, Platform, StatusBar } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { MaterialCommunityIcons, SimpleLineIcons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 type NavLinkProps = {
   navigation: any,
@@ -47,17 +47,17 @@ function LogOutButton(){
   )
 }
 
+
 function CustomDrawerContent({ navigation }: any) {
   return (
     <SafeAreaView className='flex-1 bg-white px-4'>
-        
         <View className='items-center'>
           <MaterialCommunityIcons name='bird' size={20} color='green' className='mr-[100px]'/>
           <Text className="text-xl font-bold mb-4">AILAMINA</Text>
         </View>
-          <LogOutButton />
+        <LogOutButton />
         <NavLink navigation={navigation} target='index' title='Dashboard'/>
-        <NavLink navigation={navigation} target='two' title='My Birds'/>
+        <NavLink navigation={navigation} target='myBirds' title='My Birds'/>
         <NavLink navigation={navigation} target='createBird' title='Add Bird'/>
         <NavLink navigation={navigation} target='three' title='Common Parents'/>
         <NavLink navigation={navigation} target='three' title='My Pairs'/>
@@ -70,16 +70,18 @@ function CustomDrawerContent({ navigation }: any) {
           <NavLink navigation={navigation} target='three' title='Profile'/>
           <NavLink navigation={navigation} target='three' title='Notifications'/>
         </View>
-
     </SafeAreaView>
-    
   )
 }
 
 export default function DrawerLayout() {
+  const queryClient = new QueryClient();
   return (
     <>
       <SafeAreaProvider>
+      <QueryClientProvider
+        client={queryClient}
+      > 
         <GestureHandlerRootView style={{ flex: 1, }}>
             <Drawer
               drawerContent={(props) => <CustomDrawerContent {...props} />}
@@ -96,10 +98,12 @@ export default function DrawerLayout() {
             >
               <Drawer.Screen name="index" options={{ title: 'Dashboard' }} />
               <Drawer.Screen name="createBird" options={{ title: 'Add Bird' }} />
+              <Drawer.Screen name="myBirds" options={{ title: 'My Birds' }} />
               <Drawer.Screen name="two" options={{ title: 'Second Page' }} />
               <Drawer.Screen name="three" options={{ title: 'Third Page' }} />
             </Drawer>
         </GestureHandlerRootView>
+      </QueryClientProvider>
       </SafeAreaProvider>
     </>
   );
