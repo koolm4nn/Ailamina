@@ -1,21 +1,18 @@
-import React, { memo, useState } from 'react';
-import { View, ScrollView, Text, Pressable, Platform, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import CurrencyField from "@/components/inputs/CurrencyInput";
-import ImageInput from '@/components/inputs/ImageInput';
-import FormDatePicker from '@/components/inputs/FormDatePicker';
-import * as yup from "yup";
-import { useForm, Controller } from "react-hook-form";
+import { memo } from "react";
+import { View, Text, Pressable } from "react-native";
+import { Bird } from "@/types/bird";
+import FormTextInputBase from "./FormTextInputBase";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { Controller, useForm } from "react-hook-form";
+import * as yup from "yup";
 
 // Dropdown data
 import * as dropdownData from "@/app/data";
+import FormModalComponent from "./FormModal";
+import ImageInput from "../inputs/ImageInput";
+import FormDatePicker from "../inputs/FormDatePicker";
+import CurrencyField from "../inputs/CurrencyInput";
 
-// Image uploading
-import FormTextInputBase from '@/components/forms/FormTextInputBase';
-import FormModalComponent from '@/components/forms/FormModal';
-import { supabase } from '@/lib/supabase';
-import { BirdRepoProps, insertBird } from '@/lib/db/birdsRepo';
-import { useAddBird } from '@/lib/hooks/useAddBirds';
 
 // Validation rules
 const validationSchema = yup.object({
@@ -72,6 +69,7 @@ export type BirdFormData = {
     listPrice: number | null,
     soldPrice: number | null,
 }
+
 const defaultFormData: BirdFormData = {
     imageBase64: null,
     commonName: null,
@@ -99,43 +97,28 @@ const defaultFormData: BirdFormData = {
     soldPrice: 0,
 }
 
-
-// Maps form inputs to prop for database queries
-function mapFormToDb(data: BirdFormData): BirdRepoProps {
-  return {
-    // id is created during insertion query
-    common_name: data.commonName!,
-    status: data.status!,
-    sex: data.sex!,
-    hatch_date: data.hatchDate,
-    taxonomic_order: data.taxonomicOrder!,
-    id1: data.id1!,
-    id2: data.id2 ?? "",
-    id3: data.id3 ?? "",
-    name: data.name ?? "",
-    family: data.family!,
-    genus: data.genus!,
-    species: data.species!,
-    sub_species: data.subSpecies!,
-    body_condition: data.bodyCondition!,
-    feather_condition: data.featherCondition!,
-    breeding_quality: data.breedingQuality!,
-    breeder_info: data.breederInfo ?? "",
-    mutations: data.mutations ?? "",
-    location: data.location!,
-    cost: data.cost ?? 0.0,
-    market_value: data.marketValue ?? 0.0,
-    list_price: data.listPrice ?? 0.0,
-    sold_price: data.soldPrice ?? 0.0,
-  };
+type Mode = "create" | "edit" | "view";
+interface BirdFormProps{
+    mode: Mode, 
+    defaultValues?: Partial<Bird>, 
+    onSubmit: (data: BirdFormData) => void,
+    loading?: boolean,
+    error?: boolean,
+    success?: boolean
 }
 
-// Memo-ize to prevent re-rendering of input siblings
-const FormTextInputComponent = memo(FormTextInputBase);
+function BirdForm({mode, defaultValues, onSubmit, loading=false, error=false, success=false}: BirdFormProps){
 
-export default function CreateBirdScreen(){
-    const { mutate: addBird, isPending, isError, isSuccess } = useAddBird();
+    
+    // Memo-ize to prevent re-rendering of input siblings
+    const FormTextInputComponent = memo(FormTextInputBase);
 
+    // Form handler and verification
+    const { control, handleSubmit, getValues, reset } = useForm<BirdFormData>({
+        defaultValues,
+        resolver: yupResolver(validationSchema) as any // Ugly but necessary?
+    });
+    
     // Modals data
     const orderData = dropdownData.ordersData;
     const statusData = dropdownData.statusData;
@@ -149,53 +132,9 @@ export default function CreateBirdScreen(){
     const featherConditionData = dropdownData.featherConditionsData;
     const breedingQualityData = dropdownData.breedingQualitiesData;
 
-    // Form handler and verification
-    const { control, handleSubmit, getValues, reset } = useForm<BirdFormData>({
-        defaultValues: defaultFormData,
-        resolver: yupResolver(validationSchema) as any // Ugly but necessary?
-    });
-
-    // On Submitting Form
-    async function submit(){
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if(!user?.id){
-            // TODO: Throw error
-            return;
-        }
-
-        // 1) Create Bird in DB
-        const dbProps = mapFormToDb(getValues());
-
-        try{
-            addBird(dbProps);
-        } catch(error){
-            console.log(error);
-        }
-        
-        // 2) Create user-to-bird relation
-        // 3) Upload image
-        // 4) Create bird-to-image relation
-
-        // TODO: upload image
-        // TODO: store entry in database refering user with uploaded image
-        //await uploadBirdImage(formData.imageBase64, "0", "1")
-    }
+    const readOnly = mode === "view";
 
     return (
-        <TouchableWithoutFeedback
-            onPress={Keyboard.dismiss}
-            accessible={false}
-        >
-            <KeyboardAvoidingView
-            style={{ flex: 1}}  
-            behavior={Platform.OS === "ios" ? "padding" : undefined}
-        >
-            <ScrollView
-                contentContainerStyle={{ padding: 16 }}
-                keyboardShouldPersistTaps="handled"
-                className='bg-white'
-            >
                 <>
                     <View className='flex flex-row justify-center mb-5'>
                         <Text className='font-bold'>Fields marked as </Text>
@@ -286,30 +225,30 @@ export default function CreateBirdScreen(){
 
                     {/* BUTTONS */}
                     <View className='flex flex-row gap-20 justify-center px-15 items-center'>
-                        <View className='items-center p-2'>
+                        { mode === "create" && <View className='items-center p-2'>
                             <Pressable
                                 onPress={() => reset()}
-                                disabled={isPending}
+                                disabled={loading}
                                 className='px-7 py-3 rounded-lg bg-gray-400'
                             >
                                 <Text className='text-xl text-gray-100 '>Reset</Text>
                             </Pressable>
-                        </View>
+                        </View>}
                         <View className='items-center p-2'>
                             <Pressable
-                                onPress={handleSubmit(submit)}
-                                disabled={isPending}
+                                onPress={handleSubmit(onSubmit)}
+                                disabled={loading}
                                 className='px-7 py-3 rounded-lg bg-sky-400'
                             >
-                                <Text className='text-xl text-gray-100'>Submit</Text>
+                                <Text className='text-xl text-gray-100'>{mode === "create"? "Submit" : mode === "edit"? "Save Changes" : "Back to list"}</Text>
                             </Pressable>
                         </View>
                     </View>
                     <View>
                         <Text>
-                            {isPending && <Text>Pending</Text>}
-                            {isError && <Text>Error</Text>}
-                            {isSuccess && <Text>Success</Text>}
+                            {loading && <Text>Pending</Text>}
+                            {error && <Text>Error</Text>}
+                            {success && <Text>Success</Text>}
                         </Text>
                     </View>
                     <View className='mb-20'></View>
@@ -317,10 +256,5 @@ export default function CreateBirdScreen(){
                     <View className='mb-20'></View>
                     <View className='mb-20'></View>
                 </>
-            </ScrollView>
-        </KeyboardAvoidingView>
-
-        </TouchableWithoutFeedback>
-        
     )
 }

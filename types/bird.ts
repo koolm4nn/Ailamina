@@ -1,0 +1,25 @@
+export type Bird = {
+  id: string;
+  name: string;
+  common_name: string;
+  status: number;
+  sex: number;
+  hatch_date: number;
+  order: number;
+  family: number;
+  genus: number;
+  species: number;
+  subspecies: number;
+  body_condition: number;
+  feather_condition: number;
+  breeding_quality: number;
+  breeder_info?: string;
+  mutations?: string;
+  location: string;
+  cost?: number;
+  market_value?: number;
+  list_price?: number;
+  sold_price?: number;
+  created_at: number;
+  pending: boolean;
+};
