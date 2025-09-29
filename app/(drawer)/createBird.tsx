@@ -16,6 +16,7 @@ import FormModalComponent from '@/components/forms/FormModal';
 import { supabase } from '@/lib/supabase';
 import { BirdRepoProps, insertBird } from '@/lib/db/birdsRepo';
 import { useAddBird } from '@/lib/hooks/useAddBirds';
+import BirdForm from '@/components/forms/BirdForm';
 
 // Validation rules
 const validationSchema = yup.object({
@@ -134,29 +135,10 @@ function mapFormToDb(data: BirdFormData): BirdRepoProps {
 const FormTextInputComponent = memo(FormTextInputBase);
 
 export default function CreateBirdScreen(){
-    const { mutate: addBird, isPending, isError, isSuccess } = useAddBird();
-
-    // Modals data
-    const orderData = dropdownData.ordersData;
-    const statusData = dropdownData.statusData;
-    const sexData = dropdownData.sexData;
-    const commonNameData = dropdownData.commonNamesData;
-    const familyData = dropdownData.familiesData;
-    const genusData = dropdownData.genusData;
-    const speciesData = dropdownData.speciesData;
-    const subspeciesData = dropdownData.subspeciesData;
-    const bodyConditionData = dropdownData.bodyConditionsData;
-    const featherConditionData = dropdownData.featherConditionsData;
-    const breedingQualityData = dropdownData.breedingQualitiesData;
-
-    // Form handler and verification
-    const { control, handleSubmit, getValues, reset } = useForm<BirdFormData>({
-        defaultValues: defaultFormData,
-        resolver: yupResolver(validationSchema) as any // Ugly but necessary?
-    });
+    const { mutate, isPending, isError, isSuccess } = useAddBird();
 
     // On Submitting Form
-    async function submit(){
+    async function handleFormSubmit(formData: BirdFormData){
         const { data: { user } } = await supabase.auth.getUser();
 
         if(!user?.id){
@@ -165,18 +147,18 @@ export default function CreateBirdScreen(){
         }
 
         // 1) Create Bird in DB
-        const dbProps = mapFormToDb(getValues());
+        const dbProps = mapFormToDb(formData);
 
         try{
-            addBird(dbProps);
+            mutate(dbProps);
+            // 2) Create user-to-bird relation
+            // 3) Upload image
+            // 4) Create bird-to-image relation
+            // Wrap all in one transaction with rollback on error
         } catch(error){
             console.log(error);
         }
         
-        // 2) Create user-to-bird relation
-        // 3) Upload image
-        // 4) Create bird-to-image relation
-
         // TODO: upload image
         // TODO: store entry in database refering user with uploaded image
         //await uploadBirdImage(formData.imageBase64, "0", "1")
@@ -196,127 +178,13 @@ export default function CreateBirdScreen(){
                 keyboardShouldPersistTaps="handled"
                 className='bg-white'
             >
-                <>
-                    <View className='flex flex-row justify-center mb-5'>
-                        <Text className='font-bold'>Fields marked as </Text>
-                        <Text className='font-bold text-red-600'>*</Text>
-                        <Text className='font-bold'> are required.</Text>
-                    </View>
-                    {/* IMAGE */}
-                    <Controller
-                        control={control}
-                        name='imageBase64'
-                        render={ ({field, fieldState}) => (
-                            <ImageInput uri={null} base64={field.value} onChangeImage={field.onChange} />
-                        )}
-                    />
-
-                    {/* COMMON NAME */}
-                    <FormModalComponent name='commonName' control={control} title='Common Name:' items={commonNameData} required={true}/>
-
-                    {/* STATUS */}
-                    <FormModalComponent name='status' control={control} title='Status:' items={statusData} required={true}/>
-
-                    {/* SEX */}
-                    <FormModalComponent name='sex' control={control} title='Sex:' items={sexData} required={true}/>
-                    
-
-                    {/* HATCH DATE */}
-                    <Controller 
-                        control={control}
-                        name='hatchDate'
-                        render={ ({ field, fieldState}) => (
-                            <FormDatePicker 
-                                value={new Date(field.value)}
-                                onChange={(date: Date) => field.onChange(date.getTime())}/>
-                        )}
-                    />
-
-                    {/* ID 1 */}
-                    <FormTextInputComponent name='id1' control={control} title='Main Identifier (e.g. Band/Ring Number):' required={true}  />
-                    {/* ID 2 */}
-                    <FormTextInputComponent name='id2' control={control} title='Additional Idenfitier:'  />
-                    {/* ID 3 */}
-                    <FormTextInputComponent name='id3' control={control} title='Additional Identifier:'  />
-
-                    {/* NAME */}
-                    <FormTextInputComponent name='name' control={control} title='Name' required={true}/>
-                    
-                    {/* ORDER */}
-                    <FormModalComponent name='taxonomicOrder' control={control} title='Order:' items={orderData} required={true}/>
-                    
-                    {/* FAMILY */}
-                    <FormModalComponent name='family' control={control} title='Family:' items={familyData} required={true}/>
-                    
-                    {/* GENUS */}
-                    <FormModalComponent name='genus' control={control} title='Genus:' items={genusData} required={true}/>
-
-                    {/* SPECIES */}
-                    <FormModalComponent name='species' control={control} title='Species:' items={speciesData} required={true}/>
-                    
-                    {/* SUBSPECIES */}
-                    <FormModalComponent name='subSpecies' control={control} title='Sub Species:' items={subspeciesData} required={true}/>
-
-                    {/* BREEDER INFO */}
-                    <FormTextInputComponent name='breederInfo' control={control} title='Breeder Info:' multiline={true} numberOfLines={4}/>
-
-                    {/* LOCATION */}
-                    <FormTextInputComponent name='location' control={control} title='Location (e.g. cage number):' required={true} />
-                    
-                    {/* BODY CONDITION */}
-                    <FormModalComponent name='bodyCondition' control={control} title='Body Condition:' items={bodyConditionData} required={true}/>
-                    
-                    {/* FEATHER CONDITION */}
-                    <FormModalComponent name='featherCondition' control={control} title='Feather Condition:' items={featherConditionData} required={true}/>
-                    
-                    {/* BREEDING QUALITY */}
-                    <FormModalComponent name='breedingQuality' control={control} title='Breeding Quality:' items={breedingQualityData} required={true}/>
-
-                    {/* MUTATIONS */}
-                    <FormTextInputComponent name='mutations' control={control} title='Mutations:' multiline={true} numberOfLines={4}/>
-
-                    {/* COST */}
-                    <CurrencyField name='cost' control={control} title='Cost:'/>
-                    {/* MARKET VALUE */}
-                    <CurrencyField name='marketValue' control={control} title='Market Value:'/>
-                    {/* LIST PRICE */}
-                    <CurrencyField name='listPrice' control={control} title='List Price:'/>
-                    {/* SOLD PRICE */}
-                    <CurrencyField name='soldPrice' control={control} title='Sold Price:'/>
-
-                    {/* BUTTONS */}
-                    <View className='flex flex-row gap-20 justify-center px-15 items-center'>
-                        <View className='items-center p-2'>
-                            <Pressable
-                                onPress={() => reset()}
-                                disabled={isPending}
-                                className='px-7 py-3 rounded-lg bg-gray-400'
-                            >
-                                <Text className='text-xl text-gray-100 '>Reset</Text>
-                            </Pressable>
-                        </View>
-                        <View className='items-center p-2'>
-                            <Pressable
-                                onPress={handleSubmit(submit)}
-                                disabled={isPending}
-                                className='px-7 py-3 rounded-lg bg-sky-400'
-                            >
-                                <Text className='text-xl text-gray-100'>Submit</Text>
-                            </Pressable>
-                        </View>
-                    </View>
-                    <View>
-                        <Text>
-                            {isPending && <Text>Pending</Text>}
-                            {isError && <Text>Error</Text>}
-                            {isSuccess && <Text>Success</Text>}
-                        </Text>
-                    </View>
-                    <View className='mb-20'></View>
-                    <View className='mb-20'></View>
-                    <View className='mb-20'></View>
-                    <View className='mb-20'></View>
-                </>
+                <BirdForm 
+                    mode='create'
+                    onSubmit={handleFormSubmit}
+                    loading={isPending}
+                    error={isError}
+                    success={isSuccess}
+                />
             </ScrollView>
         </KeyboardAvoidingView>
 

@@ -107,15 +107,14 @@ interface BirdFormProps{
     success?: boolean
 }
 
-function BirdForm({mode, defaultValues, onSubmit, loading=false, error=false, success=false}: BirdFormProps){
+export default function BirdForm({mode, defaultValues, onSubmit, loading=false, error=false, success=false}: BirdFormProps){
 
-    
     // Memo-ize to prevent re-rendering of input siblings
     const FormTextInputComponent = memo(FormTextInputBase);
 
     // Form handler and verification
     const { control, handleSubmit, getValues, reset } = useForm<BirdFormData>({
-        defaultValues,
+        defaultValues: defaultValues? {...defaultFormData, ...defaultValues} : defaultFormData,
         resolver: yupResolver(validationSchema) as any // Ugly but necessary?
     });
     
