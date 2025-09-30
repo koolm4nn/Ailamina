@@ -1,15 +1,18 @@
 export type Bird = {
   id: string;
+  id1: string;
+  id2: string;
+  id3: string;
   name: string;
-  common_name: string;
+  common_name: number;
   status: number;
   sex: number;
   hatch_date: number;
-  order: number;
+  taxonomic_order: number;
   family: number;
   genus: number;
   species: number;
-  subspecies: number;
+  sub_species: number;
   body_condition: number;
   feather_condition: number;
   breeding_quality: number;
