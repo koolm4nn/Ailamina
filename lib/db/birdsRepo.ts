@@ -104,5 +104,13 @@ export async function updateBird(id: number, fields: Partial<BirdRepoProps>) {
 // READ
 export async function getAllBirds(): Promise<Bird[]>{
     const db = await getDb();
-    return db.getAllAsync<Bird>("select * from birds order by id desc")
+
+    try{
+        const result = db.getAllAsync<Bird>("select * from birds order by name desc");
+        return result;
+    } catch(error){
+        console.log("Error occured fetching birds: " + error);
+    }
+
+    return [];
 }

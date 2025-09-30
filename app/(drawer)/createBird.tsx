@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import { View, ScrollView, Text, Pressable, Platform, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import CurrencyField from "@/components/inputs/CurrencyInput";
 import ImageInput from '@/components/inputs/ImageInput';
@@ -6,6 +6,7 @@ import FormDatePicker from '@/components/inputs/FormDatePicker';
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useLocalSearchParams } from "expo-router";
 
 // Dropdown data
 import * as dropdownData from "@/app/data";
@@ -17,6 +18,8 @@ import { supabase } from '@/lib/supabase';
 import { BirdRepoProps, insertBird } from '@/lib/db/birdsRepo';
 import { useAddBird } from '@/lib/hooks/useAddBirds';
 import BirdForm from '@/components/forms/BirdForm';
+import { Bird } from '@/types/bird';
+import { useSelectedBird } from '@/stores/useSelectedBird';
 
 // Validation rules
 const validationSchema = yup.object({
@@ -131,11 +134,52 @@ function mapFormToDb(data: BirdFormData): BirdRepoProps {
   };
 }
 
+function mapBirdToFormData(bird: Bird) : BirdFormData{
+    return {
+        imageBase64: null,
+        commonName: bird.common_name ?? defaultFormData.commonName,
+        status: bird.status ?? defaultFormData.status,
+        sex: bird.sex ?? defaultFormData.sex,
+        hatchDate: bird.hatch_date ?? defaultFormData.hatchDate,
+        taxonomicOrder: bird.taxonomic_order ?? defaultFormData.taxonomicOrder,
+        id1: bird.id1 ?? defaultFormData.id1,
+        id2: bird.id2 ?? defaultFormData.id2,
+        id3: bird.id3 ?? defaultFormData.id3,
+        name: bird.name ?? defaultFormData.name,
+        family: bird.family ?? defaultFormData.family,
+        genus: bird.genus ?? defaultFormData.genus,
+        species: bird.species ?? defaultFormData.species,
+        subSpecies: bird.sub_species ?? defaultFormData.subSpecies,
+        bodyCondition: bird.body_condition ?? defaultFormData.bodyCondition,
+        featherCondition: bird.feather_condition ?? defaultFormData.featherCondition,
+        breedingQuality: bird.breeding_quality ?? defaultFormData.breedingQuality,
+        breederInfo: bird.breeder_info ?? defaultFormData.breederInfo,
+        mutations: bird.mutations ?? defaultFormData.mutations,
+        location: bird.location ?? defaultFormData.location,
+        cost: bird.cost ?? defaultFormData.cost,
+        marketValue: bird.market_value ?? defaultFormData.marketValue,
+        listPrice: bird.list_price ?? defaultFormData.listPrice,
+        soldPrice: bird.sold_price ?? defaultFormData.soldPrice
+    } as BirdFormData;
+}
+
 // Memo-ize to prevent re-rendering of input siblings
 const FormTextInputComponent = memo(FormTextInputBase);
 
 export default function CreateBirdScreen(){
     const { mutate, isPending, isError, isSuccess } = useAddBird();
+
+    const { selectedBird } = useSelectedBird();
+
+    const isEdit = !!selectedBird;
+
+    // Memoize form data
+    const formData = useMemo(() => {
+        if(isEdit && selectedBird){
+            return mapBirdToFormData(selectedBird)
+        }
+        return defaultFormData;
+    }, [isEdit, selectedBird]);
 
     // On Submitting Form
     async function handleFormSubmit(formData: BirdFormData){
@@ -178,13 +222,26 @@ export default function CreateBirdScreen(){
                 keyboardShouldPersistTaps="handled"
                 className='bg-white'
             >
-                <BirdForm 
-                    mode='create'
-                    onSubmit={handleFormSubmit}
-                    loading={isPending}
-                    error={isError}
-                    success={isSuccess}
-                />
+                {isEdit? (
+                    <BirdForm 
+                        mode="edit"
+                        formData={formData}
+                        onSubmit={() => {console.log("Pressed Finish editing.")}}
+                        loading={false}
+                        error={false}
+                        success={false}
+                    
+                    />
+                ):(
+                    <BirdForm 
+                        mode="create"
+                        formData={formData}
+                        onSubmit={handleFormSubmit}
+                        loading={isPending}
+                        error={isError}
+                        success={isSuccess}
+                    />
+                )}
             </ScrollView>
         </KeyboardAvoidingView>
 

@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { View, Text, Pressable } from "react-native";
 import { Bird } from "@/types/bird";
 import FormTextInputBase from "./FormTextInputBase";
@@ -12,6 +12,7 @@ import FormModalComponent from "./FormModal";
 import ImageInput from "../inputs/ImageInput";
 import FormDatePicker from "../inputs/FormDatePicker";
 import CurrencyField from "../inputs/CurrencyInput";
+import { useSelectedBird } from "@/stores/useSelectedBird";
 
 
 // Validation rules
@@ -100,21 +101,24 @@ const defaultFormData: BirdFormData = {
 type Mode = "create" | "edit" | "view";
 interface BirdFormProps{
     mode: Mode, 
-    defaultValues?: Partial<Bird>, 
+    formData: BirdFormData, 
     onSubmit: (data: BirdFormData) => void,
     loading?: boolean,
     error?: boolean,
     success?: boolean
 }
 
-export default function BirdForm({mode, defaultValues, onSubmit, loading=false, error=false, success=false}: BirdFormProps){
+
+
+export default function BirdForm({mode, formData, onSubmit, loading=false, error=false, success=false}: BirdFormProps){
+    const { selectedBird } = useSelectedBird();
 
     // Memo-ize to prevent re-rendering of input siblings
     const FormTextInputComponent = memo(FormTextInputBase);
 
     // Form handler and verification
     const { control, handleSubmit, getValues, reset } = useForm<BirdFormData>({
-        defaultValues: defaultValues? {...defaultFormData, ...defaultValues} : defaultFormData,
+        defaultValues: formData,
         resolver: yupResolver(validationSchema) as any // Ugly but necessary?
     });
     
