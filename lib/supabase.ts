@@ -4,7 +4,7 @@ import { AppState, Platform } from 'react-native';
 
 // these come from your Supabase dashboard
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!
-const supabaseUrlKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrlKey = process.env.EXPO_PUBLIC_SUPABASE_KEY!
 
 export const supabase = createClient(supabaseUrl, supabaseUrlKey, {
   auth: {
