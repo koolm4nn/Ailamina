@@ -20,13 +20,13 @@ export function useConnectionStatus(
             const res = await fetch(pingUrl, { 
                 method: "GET", 
                 headers: {
-                    apiKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY as string
+                    apiKey: process.env.EXPO_PUBLIC_SUPABASE_KEY as string
                 },
             });
             const duration = Date.now() - start;
 
             if (!res.ok) {
-                setStatus("unstable");
+                setStatus("disconnected");
                 return;
             }
             
