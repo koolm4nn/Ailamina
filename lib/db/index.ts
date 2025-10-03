@@ -14,7 +14,7 @@ const dbLayout =
         id1 text unique not null, 
         id2 text, 
         id3 text,
-        name text not null,
+        name text unique not null,
         family integer not null,
         genus integer not null,
         species integer not null,
@@ -30,7 +30,7 @@ const dbLayout =
         list_price real not null default 0.0,
         sold_price real not null default 0.0,
         created_at integer default (unixepoch()),
-        pending integer not null default 0
+        pending integer not null default 1
     )`;
 
 // Singleton DB
