@@ -55,21 +55,21 @@ function DashboardButton(props: DashboardButtonProps) {
 
   return (
     <Pressable 
-      className= {`active:bg-green-900 bg-green-700 active:opacity-90 rounded-xl px-2 py-4`}
+      className= {`active:bg-primary/90 bg-primary rounded-xl px-2 py-4`}
       onPress={handlePress}>
       <View className='grid grid-col-1 items-center'>
         {props.iconName && <IconComponent name={props.iconName as any} size={24} color="white" />}
-      <Text className='pt-1 text-lg text-white'>{props.title}</Text>
+      <Text className='pt-1 text-lg text-text-light'>{props.title}</Text>
       </View>
     </Pressable>
   )
 }
 
-export default function TabOneScreen() {
+export default function IndexScreen() {
   return (
-    <View className='flex-1 bg-green-50'>
+    <View className='flex-1 bg-background'>
       <View className='py-10 items-center'>
-        <Text className='text-3xl font-bold'>Hi, Marius</Text>
+        <Text className='text-3xl font-bold text-text'>Hi, Marius</Text>
       </View>
       <View className='flex flex-row justify-between items-center px-2 py-3 bg-gray-200'>
         <ConnectionBanner />
@@ -79,7 +79,7 @@ export default function TabOneScreen() {
 
       <View className='flex-row flex-wrap justify-between m-2 p-2'>
         <View className='w-[48%] mb-4'>
-          <DashboardButton title='My Animals' iconName='bird' iconFamily='MaterialCommunityIcons'/>
+          <DashboardButton title='My Animals' iconName='bird' iconFamily='MaterialCommunityIcons' to="/myBirds"/>
         </View>
         <View className='w-[48%] mb-4'>
           <DashboardButton title='Pairs' iconName='group' iconFamily='MaterialIcons'/>

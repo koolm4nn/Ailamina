@@ -44,10 +44,10 @@ export default function DateBanner() {
 
     return (
         <View className='col col-1 items-end px-2'>
-            <Text>
+            <Text className="text-text">
                 {`${extractFromDate(date).time}`}
             </Text>
-            <Text>
+            <Text className="text-text">
                 {`${extractFromDate(date).date}`}
             </Text>
         </View>

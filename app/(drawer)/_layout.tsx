@@ -1,7 +1,7 @@
 import React from 'react';
 import { Drawer } from 'expo-router/drawer';
-import { View, Text, Pressable } from 'react-native';
-import { MaterialCommunityIcons, SimpleLineIcons } from '@expo/vector-icons';
+import { View, Text, Pressable, Image } from 'react-native';
+import { SimpleLineIcons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -11,15 +11,26 @@ type NavLinkProps = {
   navigation: any,
   target: string,
   title: string,
+  onBeforeNavigate?: () => void
 }
 
-function NavLink(props: NavLinkProps){
+function BirdLogo(){
+  return (
+    <Image source={require("@/assets/images/bird-icon.png")} style={{ width: 27, height: 27}} />
+  )
+}
+
+function NavLink({ navigation, target, title, onBeforeNavigate }: NavLinkProps){
   return (
         <Pressable
-          className="p-3 rounded bg-green-800 mb-2"
-          onPress={() => props.navigation.navigate(props.target)}
+          className="p-3 rounded bg-primary mb-2"
+          onPress={() => {
+            if(onBeforeNavigate){
+              onBeforeNavigate();
+            }
+            navigation.navigate(target);}}
         >
-          <Text className="text-white">{props.title}</Text>
+          <Text className="text-text-light">{title}</Text>
         </Pressable>
     )
 }
@@ -28,7 +39,7 @@ function LogOutButton(){
   return (
     <>
         <Pressable
-          className="p-3 rounded bg-green-800 mb-2"
+          className="p-3 rounded bg-primary mb-2"
           onPress={async () => {
             const {error} = await supabase.auth.signOut()
             if(error){
@@ -50,10 +61,12 @@ function LogOutButton(){
 
 function CustomDrawerContent({ navigation }: any) {
   return (
-    <SafeAreaView className='flex-1 bg-white px-4'>
+    <SafeAreaView className='flex-1 bg-background px-4'>
         <View className='items-center'>
-          <MaterialCommunityIcons name='bird' size={20} color='green' className='mr-[100px]'/>
-          <Text className="text-xl font-bold mb-4">AILAMINA</Text>
+          <View className='mr-[100px]'>
+            <BirdLogo />
+          </View>
+          <Text className="text-xl font-bold text-text mb-4">AILAMINA</Text>
         </View>
         <LogOutButton />
         <NavLink navigation={navigation} target='index' title='Dashboard'/>
@@ -89,15 +102,16 @@ export default function DrawerLayout() {
                 headerShown: true,
                 headerTintColor: 'white',
                 headerStyle:{
-                  backgroundColor: '#30533dff',
+                  backgroundColor: "#0369a1",
                 },
                 headerTitleStyle: { 
                   fontWeight: 'bold',
-                color: '#ffffffff' },
+                color: '#f0f9ff' },
               }}
             >
               <Drawer.Screen name="index" options={{ title: 'Dashboard' }} />
               <Drawer.Screen name="createBird" options={{ title: 'Add Bird' }} />
+              <Drawer.Screen name="editBird" options={{ title: 'Edit Bird' }} />
               <Drawer.Screen name="myBirds" options={{ title: 'My Birds' }} />
               <Drawer.Screen name="two" options={{ title: 'Second Page' }} />
               <Drawer.Screen name="three" options={{ title: 'Third Page' }} />

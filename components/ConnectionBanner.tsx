@@ -14,16 +14,16 @@ export default function ConnectionBanner() {
 
     return (
         <View className="p-2 flex flex-row items-center">
-            {status === "disconnected" && <MaterialCommunityIcons className="p-2 bg-red-600 rounded-full" name="signal-cellular-outline" size={18} color="white" />}
-            {status === "unstable" && <MaterialCommunityIcons className="p-2 bg-yellow-300 rounded-full" name="signal-cellular-2" size={18} color="white"/>}
-            {status === "connected" && <MaterialCommunityIcons className="p-2 bg-green-600 rounded-full" name="signal-cellular-3" size={18} color="white" />}
+            {status === "disconnected" && <MaterialCommunityIcons className="p-2 bg-error rounded-full" name="signal-cellular-outline" size={18} color="#f0f9ff" />}
+            {status === "unstable" && <MaterialCommunityIcons className="p-2 bg-warning rounded-full" name="signal-cellular-2" size={18} color="#f0f9ff"/>}
+            {status === "connected" && <MaterialCommunityIcons className="p-2 bg-success rounded-full" name="signal-cellular-3" size={18} color="#f0f9ff" />}
 
             <Text className={`text-center font-bold text-sm ml-1 ${
                 status === "connected"
-                    ? "text-green-600"
+                    ? "text-success"
                     : status === "unstable"
-                    ? "text-yellow-300"
-                    : "text-red-600"
+                    ? "text-warning"
+                    : "text-error"
                 }`}
             >
                 {status.toUpperCase()}
