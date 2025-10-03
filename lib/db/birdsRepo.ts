@@ -77,7 +77,13 @@ export async function insertBird(bird: BirdRepoProps){
 
         // TODO: on successful creation, set isSynched to false?
         return result.lastInsertRowId;
-    } finally {
+    } catch(error: unknown) {
+        if(error instanceof Error){
+            throw error; // propagate error
+        } else {
+            throw new Error (JSON.stringify(error)); // Wrap if SQLite returns something weird
+        }
+    }finally {
         await stmt.finalizeAsync();
     }
 }
